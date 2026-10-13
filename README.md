@@ -42,13 +42,14 @@ The Vite development proxy always targets 4175; the custom-port example is for t
 - Cancel pending jobs or terminate running worker threads. A cancelled job cannot accept a late result.
 - Pause new claims while current work finishes. Decreasing concurrency lets existing work drain.
 - SSE updates, status filters, search, input/output inspection, a durable event timeline and metrics computed from stored records.
+- Live capacity slots reflect the actual running-job count. They show concurrency positions, including draining work after a reduction, rather than persistent worker identities.
 - Crash recovery that records interrupted attempts, preserves completed jobs and requeues unfinished work when retry budget remains.
 
-| Processor | Input | Output |
-| --- | --- | --- |
-| Text analysis | `text`, up to 500,000 characters | Word and character counts, unique words, top words, sentences, estimated reading time |
-| CSV summary | `csv`, up to 500,000 characters | Row count, missing/unique values per column, numeric statistics, duplicates, preview |
-| Hash chain | `seed`, `iterations` from 1,000–2,000,000 | SHA-256 digest after the requested number of chained hashes |
+| Processor     | Input                                     | Output                                                                                |
+| ------------- | ----------------------------------------- | ------------------------------------------------------------------------------------- |
+| Text analysis | `text`, up to 500,000 characters          | Word and character counts, unique words, top words, sentences, estimated reading time |
+| CSV summary   | `csv`, up to 500,000 characters           | Row count, missing/unique values per column, numeric statistics, duplicates, preview  |
+| Hash chain    | `seed`, `iterations` from 1,000–2,000,000 | SHA-256 digest after the requested number of chained hashes                           |
 
 CSV parsing handles quoted commas, doubled quotes, CRLF, embedded newlines and a UTF-8 BOM. Malformed rows or duplicate/empty headers fail with an inspectable error. Hash chains demonstrate real cancellable CPU work; they are not a password-storage scheme.
 
@@ -103,17 +104,17 @@ Automatic delay is `backoffMs × 2^(attempt − 1)`. Initial retry budgets are 1
 
 All mutations accept `application/json`. Errors return `{ "error": "..." }` with an appropriate status code. The API is the same in development and production.
 
-| Endpoint | Purpose |
-| --- | --- |
-| `GET /api/health` | Health check |
-| `GET /api/snapshot` | Settings, counters, metrics, recent events and latest 500 jobs |
-| `GET /api/jobs/:id` | Input, output, errors, attempt ledger and full job timeline |
-| `POST /api/jobs` | Validate and enqueue; returns 201, or 200 for an idempotent duplicate |
-| `POST /api/jobs/:id/cancel` | Cancel pending/running work |
-| `POST /api/jobs/:id/retry` | Recover dead-letter or cancelled work |
-| `POST /api/settings` | Set `paused` and/or `concurrency` |
-| `POST /api/demo` | Enqueue six real demonstration tasks |
-| `GET /api/events` | SSE invalidations and heartbeat; reconnect refreshes current state |
+| Endpoint                    | Purpose                                                               |
+| --------------------------- | --------------------------------------------------------------------- |
+| `GET /api/health`           | Health check                                                          |
+| `GET /api/snapshot`         | Settings, counters, metrics, recent events and latest 500 jobs        |
+| `GET /api/jobs/:id`         | Input, output, errors, attempt ledger and full job timeline           |
+| `POST /api/jobs`            | Validate and enqueue; returns 201, or 200 for an idempotent duplicate |
+| `POST /api/jobs/:id/cancel` | Cancel pending/running work                                           |
+| `POST /api/jobs/:id/retry`  | Recover dead-letter or cancelled work                                 |
+| `POST /api/settings`        | Set `paused` and/or `concurrency`                                     |
+| `POST /api/demo`            | Enqueue six real demonstration tasks                                  |
+| `GET /api/events`           | SSE invalidations and heartbeat; reconnect refreshes current state    |
 
 ```sh
 curl -X POST http://127.0.0.1:4175/api/jobs \
@@ -128,6 +129,7 @@ npm test
 npm run build
 npx playwright install chromium
 npm run test:browser
+npm run test:browser -- --record-motion
 npm run benchmark
 npm run benchmark -- --workload hash --jobs 12 --concurrency 3 --iterations 100000
 ```
@@ -136,16 +138,18 @@ The automated suite contains **19 passing engine/API tests**, including actual w
 
 The Playwright smoke uses the production frontend and a temporary database. It exercises the demo, dead-letter recovery, enqueue, pause/resume, pending/running cancellation, output inspection, desktop/mobile layout and live updates. Screenshots are generated from those real jobs. CI runs the engine/API suite, TypeScript/build and Chromium smoke on Node 24.
 
+The interface adds one-time view entry, selected-job inspector transitions, changing counters, live worker pulses, animated tabs and a native dialog entrance. SSE snapshots preserve the mounted view, so updates do not replay the introduction. Reduced-motion preferences disable animation and transitions; the smoke checks both the real running pulse and its disabled state. The optional capture command creates [a short motion walkthrough](docs/motion-demo.webm) from actual browser actions.
+
 One measured local benchmark on **Node v24.21.0 / Apple M4 / macOS arm64** processed **100 text jobs × 13,700 characters** at concurrency 3:
 
-| Measurement | Observed result |
-| --- | --- |
-| Total time, including enqueue | 1,450.56 ms |
-| Enqueue time | 45.55 ms |
-| Jobs / second | 68.94 |
-| Completed attempt p50 / p95 / max | 38 / 58 / 86 ms |
-| Maximum observed workers | 3 |
-| Completed jobs with persisted output | 100 |
+| Measurement                          | Observed result |
+| ------------------------------------ | --------------- |
+| Total time, including enqueue        | 1,450.56 ms     |
+| Enqueue time                         | 45.55 ms        |
+| Jobs / second                        | 68.94           |
+| Completed attempt p50 / p95 / max    | 38 / 58 / 86 ms |
+| Maximum observed workers             | 3               |
+| Completed jobs with persisted output | 100             |
 
 This is one reproducible local run, including worker startup and durable writes. It is not a production capacity guarantee. The benchmark checks outputs and the concurrency bound, prints the actual environment and deletes its temporary database.
 
@@ -165,4 +169,4 @@ This is one reproducible local run, including worker startup and durable writes.
 
 ## License
 
-MIT © Mert Kanıbir. See [LICENSE](LICENSE). The interface uses system fonts; bundled code typography retains the [IBM Plex Mono](docs/IBM-Plex-Mono-LICENSE.txt) open font license. See [verification notes](docs/VERIFICATION.md) for the observed local flows.
+MIT © Mert Kanıbir. See [LICENSE](LICENSE). Bundled typography retains the [DM Sans](docs/DM-Sans-LICENSE.txt) and [IBM Plex Mono](docs/IBM-Plex-Mono-LICENSE.txt) open font licenses. See [verification notes](docs/VERIFICATION.md) for the observed local flows.

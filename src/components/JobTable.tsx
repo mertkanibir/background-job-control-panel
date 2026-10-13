@@ -39,7 +39,6 @@ export function JobTable({
         <thead>
           <tr>
             <th scope="col">Job</th>
-            <th scope="col">ID</th>
             <th scope="col">Processor</th>
             <th scope="col">Status</th>
             <th scope="col">Attempts</th>
@@ -57,11 +56,12 @@ export function JobTable({
                   aria-label={`Inspect ${job.name}`}
                   aria-pressed={selected === job.id}
                 >
-                  <strong title={job.name}>{job.name}</strong>
+                  <TypeIcon type={job.type} />
+                  <span>
+                    <strong title={job.name}>{job.name}</strong>
+                    <small className="mono">{job.id.slice(0, 8)}</small>
+                  </span>
                 </button>
-              </td>
-              <td className="mono muted" title={job.id}>
-                {job.id.slice(0, 8)}
               </td>
               <td className="processor-cell">{typeLabels[job.type]}</td>
               <td>

@@ -30,6 +30,9 @@ export function JobInspector({
   if (!job)
     return (
       <aside className="inspector inspector-empty">
+        <span className="empty-icon">
+          <FileJson2 size={26} />
+        </span>
         <h3>Job details</h3>
         <p>Select a job to inspect input, output and attempt history.</p>
       </aside>
@@ -70,7 +73,10 @@ export function JobInspector({
   return (
     <aside className="inspector" aria-label="Job inspector">
       <div className="inspector-label">
-        <span>Job details</span>
+        <span>
+          <FileJson2 size={15} />
+          Job details
+        </span>
         <button className="icon-button" aria-label="Close job inspector" onClick={onClose}>
           <X size={16} />
         </button>
