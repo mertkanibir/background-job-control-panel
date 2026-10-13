@@ -1,0 +1,35 @@
+{
+  "name": "relay-job-control-panel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A durable local background queue with real workers, retries, cancellation and a live operations dashboard.",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "tsc -b && vite build",
+    "start": "node server/index.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node scripts/browser-smoke.mjs",
+    "benchmark": "node scripts/benchmark.mjs",
+    "check": "npm test && npm run build"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "playwright": "^1.56.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.1.0"
+  }
+}
