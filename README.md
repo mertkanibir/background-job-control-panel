@@ -165,4 +165,4 @@ This is one reproducible local run, including worker startup and durable writes.
 
 ## License
 
-MIT © Mert Kanıbir. See [LICENSE](LICENSE). Bundled fonts retain their [DM Sans](docs/DM-Sans-LICENSE.txt) and [IBM Plex Mono](docs/IBM-Plex-Mono-LICENSE.txt) open font licenses. See [verification notes](docs/VERIFICATION.md) for the observed local flows.
+MIT © Mert Kanıbir. See [LICENSE](LICENSE). The interface uses system fonts; bundled code typography retains the [IBM Plex Mono](docs/IBM-Plex-Mono-LICENSE.txt) open font license. See [verification notes](docs/VERIFICATION.md) for the observed local flows.

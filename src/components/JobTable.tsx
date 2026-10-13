@@ -1,4 +1,4 @@
-import { ArrowUpRight, FileText, Fingerprint, Table2 } from 'lucide-react';
+import { FileText, Fingerprint, Table2 } from 'lucide-react';
 import type { Job, JobType } from '../types';
 import { duration, time, typeLabels } from '../types';
 import { Status } from './Status';
@@ -29,11 +29,8 @@ export function JobTable({
   if (!jobs.length)
     return (
       <div className="empty-state">
-        <span className="empty-mark">
-          <Table2 size={26} />
-        </span>
         <h3>{emptyMessage}</h3>
-        <p>Enqueue a task, or run the demo batch to see actual workers in action.</p>
+        <p>Submit a job or run the demo batch.</p>
       </div>
     );
   return (
@@ -41,7 +38,9 @@ export function JobTable({
       <table className="job-table">
         <thead>
           <tr>
-            <th scope="col">Job / processor</th>
+            <th scope="col">Job</th>
+            <th scope="col">ID</th>
+            <th scope="col">Processor</th>
             <th scope="col">Status</th>
             <th scope="col">Attempts</th>
             <th scope="col">Duration</th>
@@ -58,16 +57,13 @@ export function JobTable({
                   aria-label={`Inspect ${job.name}`}
                   aria-pressed={selected === job.id}
                 >
-                  <TypeIcon type={job.type} />
-                  <span>
-                    <strong>{job.name}</strong>
-                    <small>
-                      {typeLabels[job.type]} <span>· {job.id.slice(0, 8)}</span>
-                    </small>
-                  </span>
-                  <ArrowUpRight className="row-arrow" size={15} />
+                  <strong title={job.name}>{job.name}</strong>
                 </button>
               </td>
+              <td className="mono muted" title={job.id}>
+                {job.id.slice(0, 8)}
+              </td>
+              <td className="processor-cell">{typeLabels[job.type]}</td>
               <td>
                 <Status status={job.status} />
                 {job.status === 'running' ? (

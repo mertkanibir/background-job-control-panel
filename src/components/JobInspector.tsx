@@ -30,10 +30,8 @@ export function JobInspector({
   if (!job)
     return (
       <aside className="inspector inspector-empty">
-        <FileJson2 size={30} />
-        <h3>Every job tells a story.</h3>
-        <p>Select a job to inspect its payload, output and complete attempt history.</p>
-        <span className="mono">INPUT → WORKER → RESULT</span>
+        <h3>Job details</h3>
+        <p>Select a job to inspect input, output and attempt history.</p>
       </aside>
     );
   const canCancel = ['queued', 'running', 'retrying'].includes(job.status);
@@ -72,7 +70,7 @@ export function JobInspector({
   return (
     <aside className="inspector" aria-label="Job inspector">
       <div className="inspector-label">
-        <span>JOB INSPECTOR</span>
+        <span>Job details</span>
         <button className="icon-button" aria-label="Close job inspector" onClick={onClose}>
           <X size={16} />
         </button>
@@ -88,23 +86,23 @@ export function JobInspector({
       </div>
       <div className="detail-grid">
         <div>
-          <small>ATTEMPT</small>
+          <small>Attempt</small>
           <strong>
             {job.attempts} <span>/ {job.maxAttempts}</span>
           </strong>
         </div>
         <div>
-          <small>LAST DURATION</small>
+          <small>Last duration</small>
           <strong>
             {duration(job.finishedAt && job.startedAt ? job.finishedAt - job.startedAt : null)}
           </strong>
         </div>
         <div>
-          <small>CREATED</small>
+          <small>Created</small>
           <strong>{time(job.createdAt)}</strong>
         </div>
         <div>
-          <small>BACKOFF BASE</small>
+          <small>Backoff base</small>
           <strong>{duration(job.backoffMs)}</strong>
         </div>
       </div>

@@ -25,7 +25,7 @@ try {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(apiUrl);
-  await page.getByRole('heading', { name: 'Keep the work moving.' }).waitFor();
+  await page.getByRole('heading', { name: 'Job queue', exact: true }).waitFor();
   await page.locator('.connection').filter({ hasText: 'Live updates' }).waitFor();
   await page.getByRole('button', { name: 'Run demo batch', exact: true }).click();
   await page.waitForFunction(() => document.querySelectorAll('.job-table tbody tr').length === 6);

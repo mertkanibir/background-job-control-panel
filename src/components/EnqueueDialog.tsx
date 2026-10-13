@@ -69,8 +69,7 @@ export function EnqueueDialog({
       <form onSubmit={submit}>
         <div className="dialog-head">
           <div>
-            <span className="eyebrow">NEW TASK</span>
-            <h2 id="enqueue-title">Put a worker to work.</h2>
+            <h2 id="enqueue-title">New job</h2>
           </div>
           <button
             className="icon-button"
@@ -81,9 +80,7 @@ export function EnqueueDialog({
             <X size={20} />
           </button>
         </div>
-        <p className="dialog-description">
-          Choose a real processor. Relay persists the input before a worker claims it.
-        </p>
+        <p className="dialog-description">Select a processor and provide its input.</p>
         <div className="processor-options" role="group" aria-label="Processor type">
           {(
             [
