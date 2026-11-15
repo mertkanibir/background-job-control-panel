@@ -52,6 +52,14 @@ try {
     true,
     'View intro must not restart on SSE updates',
   );
+  await page.keyboard.press('/');
+  assert.equal(await page.getByRole('textbox', { name: 'Search jobs' }).evaluate((element) => element === document.activeElement), true, 'Slash focuses queue search');
+  await page.getByRole('textbox', { name: 'Search jobs' }).fill('no-such-execution-record');
+  await page.getByRole('heading', { name: 'No matching jobs', exact: true }).waitFor();
+  await page.getByRole('textbox', { name: 'Search jobs' }).fill('');
+  await page.getByRole('textbox', { name: 'Search jobs' }).blur();
+  await page.keyboard.press('Escape');
+  await page.getByRole('heading', { name: 'Job details', exact: true }).waitFor();
   await page
     .getByRole('button', { name: 'Inspect Retry demonstration · succeeds on attempt 3' })
     .click();
@@ -61,15 +69,33 @@ try {
   await page.locator('.inspector .status-completed').waitFor();
   await page.getByRole('tab', { name: /Timeline/ }).click();
   await page.getByText('Retry in 2000 ms:', { exact: false }).waitFor();
+  const delayedDetail = async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await route.continue();
+  };
+  await page.route('**/api/jobs/*', delayedDetail);
+  await page.getByRole('button', { name: 'Inspect Release notes · word frequency' }).click();
+  await page.getByRole('heading', { name: 'Loading execution record…', exact: true }).waitFor();
+  assert.equal(await page.getByRole('heading', { name: 'Retry demonstration · succeeds on attempt 3', exact: true }).count(), 0, 'Switching jobs must hide stale inspector data while the new record loads');
+  await page.getByRole('heading', { name: 'Release notes · word frequency', exact: true }).waitFor();
+  await page.unroute('**/api/jobs/*', delayedDetail);
+  await page.getByRole('button', { name: 'Inspect Retry demonstration · succeeds on attempt 3' }).click();
+  await page.getByRole('heading', { name: 'Retry demonstration · succeeds on attempt 3', exact: true }).waitFor();
+  await page.getByRole('tab', { name: /Timeline/ }).click();
+
   await page
     .locator('.inspector')
     .evaluate((element) =>
       Promise.all(element.getAnimations({ subtree: true }).map((animation) => animation.finished)),
     );
   await mkdir('docs', { recursive: true });
-  await page.screenshot({ path: 'docs/screenshot.png', fullPage: true });
+  await page.screenshot({ path: 'docs/screenshot.png', fullPage: true, animations: 'disabled' });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: 'docs/screenshot-mobile.png', fullPage: true });
+  assert.equal(await page.locator('.job-table').evaluate((element) => element.scrollWidth <= element.clientWidth), true, 'Mobile execution records expose status, attempts and duration without sideways table scrolling');
+  const inspectorBox = await page.locator('.inspector').boundingBox();
+  const queueBox = await page.locator('.queue-card').boundingBox();
+  assert.ok(inspectorBox.y < queueBox.y, 'Selected mobile inspector appears above the queue');
+  await page.screenshot({ path: 'docs/screenshot-mobile.png', fullPage: true, animations: 'disabled' });
   assert.ok(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     'Mobile page must not overflow horizontally',
@@ -181,7 +207,7 @@ try {
     console.log('Motion capture saved to docs/motion-demo.webm.');
   }
   console.log(
-    'Browser smoke passed: demo output/retry timeline, dead-letter recovery, enqueue, pause/resume, pending and running cancellation, SSE updates, desktop/mobile layout, real capacity/pulse, stable view intro and reduced-motion checks; zero page errors.',
+    'Browser smoke passed: demo output/retry timeline, dead-letter recovery, enqueue, pause/resume, pending and running cancellation, SSE updates, desktop/mobile layout, real capacity/pulse, stable view intro, keyboard search, stale-inspector protection, mobile execution records and reduced-motion checks; zero page errors.',
   );
 } finally {
   await browser?.close();

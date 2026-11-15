@@ -30,7 +30,11 @@ export function JobTable({
     return (
       <div className="empty-state">
         <h3>{emptyMessage}</h3>
-        <p>Submit a job or run the demo batch.</p>
+        <p>{emptyMessage === 'No matching jobs'
+          ? 'Change the status filter or search term.'
+          : emptyMessage === 'No dead letters'
+            ? 'Jobs with exhausted retry budgets appear here.'
+            : 'Enqueue a job or run six real demonstration tasks.'}</p>
       </div>
     );
   return (

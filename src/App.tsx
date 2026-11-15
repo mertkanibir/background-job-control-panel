@@ -46,6 +46,7 @@ export default function App() {
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const activeFetch = useRef<AbortController | null>(null);
+  const searchInput = useRef<HTMLInputElement | null>(null);
   const refresh = useCallback(async () => {
     activeFetch.current?.abort();
     const controller = new AbortController();
@@ -97,6 +98,27 @@ export default function App() {
       setBusy(false);
     }
   };
+  useEffect(() => {
+    const keyboard = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (event.isComposing || target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || document.querySelector('dialog[open]')) return;
+      if (event.key === '/' && view !== 'activity') {
+        event.preventDefault();
+        searchInput.current?.focus();
+      } else if (event.key === 'Escape') {
+        setSelected(null);
+      }
+    };
+    window.addEventListener('keydown', keyboard);
+    return () => window.removeEventListener('keydown', keyboard);
+  }, [view]);
+  useEffect(() => {
+    if (!selected || !window.matchMedia('(max-width: 700px)').matches) return;
+    const frame = requestAnimationFrame(() => {
+      document.querySelector('.inspector')?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selected]);
   const counts = snapshot?.counts;
   const jobs = useMemo(
     () =>
@@ -131,12 +153,13 @@ export default function App() {
   const capacity = snapshot?.settings.concurrency ?? 3;
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#queue-workspace">Skip to workspace</a>
       <aside className="sidebar">
         <a className="brand" href="/" aria-label="Relay home">
           <img className="brand-mark" src="/relay-mark.svg" alt="" width="36" height="36" />
           <span>relay<span className="brand-caption">JOB CONTROL</span></span>
         </a>
-        
+
         <nav aria-label="Main navigation">
           <button
             onClick={() => changeView('jobs')}
@@ -180,7 +203,7 @@ export default function App() {
       <div className="main-shell">
         <header className="topbar">
           <span className="breadcrumb">
-            <Database size={13} /> relay.sqlite<span>/</span>
+            <Database size={13} /> local / SQLite<span>/</span>
             <strong>{title}</strong>
           </span>
           <div className="connection">
@@ -189,7 +212,7 @@ export default function App() {
             <Radio size={14} />
           </div>
         </header>
-        <main>
+        <main id="queue-workspace" tabIndex={-1}>
           <div className="view-content" key={view}>
             <div className="page-heading">
               <div>
@@ -403,7 +426,9 @@ export default function App() {
                     <div className="search-field">
                       <Search size={14} />
                       <input
+                        ref={searchInput}
                         aria-label="Search jobs"
+                        title="Press / to search"
                         placeholder="Search jobs"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
@@ -445,8 +470,9 @@ export default function App() {
                   </div>
                 </section>
                 <JobInspector
-                  key={detail?.id ?? 'empty'}
-                  job={detail}
+                  key={selected ?? 'empty'}
+                  job={detail?.id === selected ? detail : null}
+                  loading={Boolean(selected && detail?.id !== selected)}
                   busy={busy}
                   onAction={(id, action) => void mutate(`/jobs/${id}/${action}`)}
                   onClose={() => setSelected(null)}

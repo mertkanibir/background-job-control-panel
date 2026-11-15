@@ -16,11 +16,13 @@ import { TypeIcon } from './JobTable';
 
 export function JobInspector({
   job,
+  loading = false,
   busy,
   onAction,
   onClose,
 }: {
   job: JobDetail | null;
+  loading?: boolean;
   busy: boolean;
   onAction: (id: string, action: 'cancel' | 'retry') => void;
   onClose: () => void;
@@ -29,12 +31,13 @@ export function JobInspector({
   const [copied, setCopied] = useState(false);
   if (!job)
     return (
-      <aside className="inspector inspector-empty">
+      <aside className="inspector inspector-empty" aria-label="Job inspector" aria-busy={loading}>
+        {loading ? <button className="icon-button loading-close" aria-label="Close job inspector" onClick={onClose}><X size={16} /></button> : null}
         <span className="empty-icon">
           <FileJson2 size={26} />
         </span>
-        <h3>Job details</h3>
-        <p>Select a job to inspect input, output and attempt history.</p>
+        <h3>{loading ? 'Loading execution record…' : 'Job details'}</h3>
+        <p>{loading ? 'Reading persisted input, output and attempt history.' : 'Select a job to inspect input, output and attempt history.'}</p>
       </aside>
     );
   const canCancel = ['queued', 'running', 'retrying'].includes(job.status);
