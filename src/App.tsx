@@ -43,6 +43,9 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<JobDetail | null>(null);
+  const [detailError, setDetailError] = useState<{ id: string; message: string } | null>(null);
+  const [detailRetry, setDetailRetry] = useState(0);
+  const failedDetail = useRef<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const activeFetch = useRef<AbortController | null>(null);
@@ -75,17 +78,36 @@ export default function App() {
   }, [refresh]);
   useEffect(() => {
     if (!selected) {
+      failedDetail.current = null;
       setDetail(null);
+      setDetailError(null);
       return;
     }
+    // A failed record stays in its terminal error state until the operator retries.
+    // Queue snapshots must not silently restart that failed request.
+    if (failedDetail.current === selected) return;
+    failedDetail.current = null;
+    setDetailError(null);
     const controller = new AbortController();
     request<JobDetail>(`/jobs/${selected}`, undefined, controller.signal)
-      .then(setDetail)
+      .then((job) => {
+        setDetail(job);
+        setDetailError(null);
+      })
       .catch((cause) => {
-        if (cause.name !== 'AbortError') setError(cause.message);
+        if (cause.name !== 'AbortError') {
+          failedDetail.current = selected;
+          setDetailError({ id: selected, message: cause.message });
+        }
       });
     return () => controller.abort();
-  }, [selected, snapshot]);
+  }, [selected, snapshot, detailRetry]);
+  const retryDetail = () => {
+    failedDetail.current = null;
+    setDetail(null);
+    setDetailError(null);
+    setDetailRetry((attempt) => attempt + 1);
+  };
   const mutate = async (path: string, body: unknown = {}) => {
     setBusy(true);
     setError('');
@@ -472,7 +494,9 @@ export default function App() {
                 <JobInspector
                   key={selected ?? 'empty'}
                   job={detail?.id === selected ? detail : null}
-                  loading={Boolean(selected && detail?.id !== selected)}
+                  loading={Boolean(selected && detail?.id !== selected && detailError?.id !== selected)}
+                  error={detailError?.id === selected ? detailError.message : ''}
+                  onRetryLoad={retryDetail}
                   busy={busy}
                   onAction={(id, action) => void mutate(`/jobs/${id}/${action}`)}
                   onClose={() => setSelected(null)}

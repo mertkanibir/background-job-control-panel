@@ -17,18 +17,39 @@ import { TypeIcon } from './JobTable';
 export function JobInspector({
   job,
   loading = false,
+  error = '',
+  onRetryLoad,
   busy,
   onAction,
   onClose,
 }: {
   job: JobDetail | null;
   loading?: boolean;
+  error?: string;
+  onRetryLoad: () => void;
   busy: boolean;
   onAction: (id: string, action: 'cancel' | 'retry') => void;
   onClose: () => void;
 }) {
   const [tab, setTab] = useState('output');
   const [copied, setCopied] = useState(false);
+  if (error)
+    return (
+      <aside className="inspector inspector-failed" aria-label="Job inspector" aria-busy="false">
+        <div className="inspector-label">
+          <span><AlertTriangle size={15} />Job details</span>
+          <button className="icon-button" aria-label="Close job inspector" onClick={onClose}><X size={16} /></button>
+        </div>
+        <div className="inspector-load-error" role="alert">
+          <h3>Could not load execution record</h3>
+          <p>{error}</p>
+          <p>The queue is still available. Retry to read this record again.</p>
+        </div>
+        <button className="button secondary" onClick={onRetryLoad}>
+          <RotateCcw size={14} />Retry loading record
+        </button>
+      </aside>
+    );
   if (!job)
     return (
       <aside className="inspector inspector-empty" aria-label="Job inspector" aria-busy={loading}>

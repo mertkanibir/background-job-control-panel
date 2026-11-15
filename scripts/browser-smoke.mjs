@@ -79,7 +79,27 @@ try {
   assert.equal(await page.getByRole('heading', { name: 'Retry demonstration · succeeds on attempt 3', exact: true }).count(), 0, 'Switching jobs must hide stale inspector data while the new record loads');
   await page.getByRole('heading', { name: 'Release notes · word frequency', exact: true }).waitFor();
   await page.unroute('**/api/jobs/*', delayedDetail);
+  let failedDetailRequests = 0;
+  const failDetail = async (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    failedDetailRequests++;
+    await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Temporary detail service outage.' }) });
+  };
+  await page.route('**/api/jobs/*', failDetail);
   await page.getByRole('button', { name: 'Inspect Retry demonstration · succeeds on attempt 3' }).click();
+  await page.getByRole('heading', { name: 'Could not load execution record', exact: true }).waitFor();
+  assert.equal(await page.locator('.inspector').getAttribute('aria-busy'), 'false', 'A failed detail response must finish loading');
+  assert.equal(await page.getByRole('heading', { name: 'Loading execution record…', exact: true }).count(), 0);
+  await page.getByRole('button', { name: 'Pause queue', exact: true }).click();
+  await page.getByRole('button', { name: 'Resume queue', exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Resume queue', exact: true }).click();
+  await page.getByRole('button', { name: 'Pause queue', exact: true }).waitFor();
+  assert.equal(failedDetailRequests, 1, 'Live queue snapshots must not silently retry a failed inspector request');
+  await page.getByRole('heading', { name: 'Could not load execution record', exact: true }).waitFor();
+  assert.equal(await page.locator('.inspector').getAttribute('aria-busy'), 'false');
+  await page.screenshot({ path: 'docs/screenshot-inspector-error.png', fullPage: true, animations: 'disabled' });
+  await page.unroute('**/api/jobs/*', failDetail);
+  await page.getByRole('button', { name: 'Retry loading record', exact: true }).click();
   await page.getByRole('heading', { name: 'Retry demonstration · succeeds on attempt 3', exact: true }).waitFor();
   await page.getByRole('tab', { name: /Timeline/ }).click();
 
@@ -108,6 +128,11 @@ try {
   await page
     .getByRole('heading', { name: 'Dead-letter demonstration · exhausted budget', exact: true })
     .waitFor();
+  await page.setViewportSize({ width: 320, height: 800 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, '320px Dead letters view with a nonzero badge must fit the document');
+  assert.equal(await page.locator('.sidebar nav').evaluate((element) => element.getBoundingClientRect().right <= innerWidth), true, 'The masthead navigation stays within the narrow viewport');
+  await page.screenshot({ path: 'docs/screenshot-mobile-narrow.png', fullPage: true, animations: 'disabled' });
+  await page.setViewportSize({ width: 1600, height: 1000 });
   await page.getByRole('button', { name: 'Retry job', exact: true }).click();
   await poll(async () => (await snapshot()).counts.completed === 6);
   await page.getByRole('button', { name: 'Job queue', exact: false }).click();
@@ -207,7 +232,7 @@ try {
     console.log('Motion capture saved to docs/motion-demo.webm.');
   }
   console.log(
-    'Browser smoke passed: demo output/retry timeline, dead-letter recovery, enqueue, pause/resume, pending and running cancellation, SSE updates, desktop/mobile layout, real capacity/pulse, stable view intro, keyboard search, stale-inspector protection, mobile execution records and reduced-motion checks; zero page errors.',
+    'Browser smoke passed: demo output/retry timeline, dead-letter recovery, enqueue, pause/resume, pending and running cancellation, SSE updates, desktop/mobile layout, real capacity/pulse, stable view intro, keyboard search, stale-inspector protection, mobile execution records, 320px dead-letter navigation, terminal inspector errors/manual reload and reduced-motion checks; zero page errors.',
   );
 } finally {
   await browser?.close();

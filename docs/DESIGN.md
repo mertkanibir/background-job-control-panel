@@ -17,7 +17,7 @@ The mark uses a 48-unit grid, 2.5-unit strokes and three colors. It remains legi
 | Active | `#116b62` | Running metric and worker feedback |
 | Failure | `#ab402b` | Dead-letter labels; failures also have text |
 
-DM Sans is bundled for interface text. IBM Plex Mono is bundled for IDs, timestamps, numerical values, labels and code. No font or image requests are needed at runtime.
+DM Sans is bundled for interface text. IBM Plex Mono is bundled for IDs, timestamps, numerical values, labels and code. Fonts and image assets are served from the same origin as the app. No external font or image services are used.
 
 ## Layout
 
@@ -26,7 +26,7 @@ DM Sans is bundled for interface text. IBM Plex Mono is bundled for IDs, timesta
 - Capacity positions are logical slots. They do not imply persistent worker identities, because each attempt creates a worker thread.
 - Desktop uses a ledger and inspector together. The table keeps predictable column widths, with contained scrolling at intermediate widths.
 - At 700px and below, the table becomes compact execution records exposing status, attempts and duration without horizontal scrolling. The selected inspector moves above the queue. Selecting a record scrolls it into view.
-- Empty, loading, error, disconnected, paused and terminal states use direct language. Switching records hides the previous record immediately while the new request is pending, so its actions cannot be mistaken for the new selection.
+- Empty, loading, error, disconnected, paused and terminal states use direct language. Switching records hides the previous record immediately while the new request is pending, so its actions cannot be mistaken for the new selection. A failed detail request shows a terminal error with an explicit retry action; live queue updates preserve that state.
 
 ## Interaction and accessibility
 

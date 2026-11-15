@@ -29,15 +29,15 @@ The run checks:
 
 1. Six real demo jobs reach five completed records and one dead letter. The retry timeline retains the intentional failures and two-second second backoff.
 2. `/` focuses search. A term with no matching records exposes the empty result state; clearing it restores the records. Escape outside an input clears selection.
-3. Switching to another record while its detail request is delayed hides the previous record immediately. The inspector shows a loading state until the matching detail arrives.
+3. Switching to another record while its detail request is delayed hides the previous record immediately. The inspector shows a loading state until the matching detail arrives. An injected HTTP 503 ends loading with a terminal error and manual retry. Pause/resume produces fresh SSE snapshots without silently retrying the failed request; the explicit retry action recovers the record.
 4. A dead letter is retried and completes with its history preserved.
 5. The browser pauses the queue, enqueues text, cancels the pending record, grants another attempt, resumes, and reads the actual output (`words: 5`).
 6. A live two-million-iteration hash job occupies capacity. Cancelling terminates it and records cancellation.
 7. SSE snapshots keep the same mounted view, so refreshes do not replay the introduction.
-8. At 390px, the document does not overflow horizontally. Execution records expose state, attempts and duration without sideways table scrolling. The selected inspector is above the queue.
+8. At 390px, the document does not overflow horizontally. Execution records expose state, attempts and duration without sideways table scrolling. The selected inspector is above the queue. A 320px Dead letters view with a nonzero masthead badge and selected job also stays within the document width.
 9. A real running worker produces the capacity pulse. Reduced motion disables that pulse and the view/inspector animations.
 
-The same run writes [desktop](screenshot.png) (1600 × 1337) and [mobile](screenshot-mobile.png) (390 × 2199) full-page screenshots. Capture disables in-flight animations. The [interaction recording](motion-demo.webm) shows navigation, inspection, the enqueue dialog and cancellation of a live hash chain in the refreshed interface.
+The same run writes [desktop](screenshot.png) (1600 × 1337) and [mobile](screenshot-mobile.png) (390 × 2199) full-page screenshots. Capture disables in-flight animations. Additional captures show the [320px recovery view](screenshot-mobile-narrow.png) and [terminal inspector error](screenshot-inspector-error.png). The [interaction recording](motion-demo.webm) shows navigation, inspection, the enqueue dialog and cancellation of a live hash chain in the refreshed interface.
 
 ## Measured queue run
 
