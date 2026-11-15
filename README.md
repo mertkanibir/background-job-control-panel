@@ -1,19 +1,6 @@
-<h1 align="center">Relay</h1>
+![Relay — background job control](public/relay-wordmark.svg)
 
-<p align="center">A durable background job queue with isolated workers, retries, cancellation, and live execution monitoring.</p>
-
-<p align="center">
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-149ECA?style=plastic&logo=react&logoColor=white" alt="React" /></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=plastic&logo=typescript&logoColor=white" alt="TypeScript" /></a>
-  <a href="https://vite.dev/"><img src="https://img.shields.io/badge/Vite-646CFF?style=plastic&logo=vite&logoColor=white" alt="Vite" /></a>
-</p>
-
-<p align="center">
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js%2024-339933?style=plastic&logo=nodedotjs&logoColor=white" alt="Node.js 24" /></a>
-  <a href="https://sqlite.org/"><img src="https://img.shields.io/badge/SQLite-003B57?style=plastic&logo=sqlite&logoColor=white" alt="SQLite" /></a>
-  <a href="https://nodejs.org/api/worker_threads.html"><img src="https://img.shields.io/badge/Worker%20Threads-43853D?style=plastic&logo=nodedotjs&logoColor=white" alt="Worker Threads" /></a>
-  <a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"><img src="https://img.shields.io/badge/Server%20Sent%20Events-475569?style=plastic" alt="Server Sent Events" /></a>
-</p>
+A local background queue with isolated workers, durable attempts, retries, cancellation, and an execution ledger you can inspect.
 
 Relay makes background work inspectable. Enqueue real processing tasks, follow each worker attempt, recover exhausted jobs, and keep results across process restarts.
 
@@ -48,6 +35,14 @@ RELAY_DB=/tmp/relay-experiment.sqlite PORT=4180 npm start
 ```
 
 The Vite development proxy always targets 4175; the custom-port example is for the production server.
+
+## Working in the console
+
+The execution ledger and selected job stay side by side on desktop. On narrow screens, each record exposes its state, attempts and duration in a compact row, and selecting one brings the inspector above the queue. Search matches a job's name, ID or processor. Press **/** to focus search, **Escape** outside an input to close the inspector, and the **arrow keys** to move between inspector tabs.
+
+The worker strip shows real active attempts against configured concurrency. An amber dead-letter count identifies work requiring recovery. Status always includes a written label. Motion is limited to short state transitions and a running-worker pulse; reduced-motion preferences disable both.
+
+[Interface and identity notes](docs/DESIGN.md) describe the custom mark, layout, states and responsive behavior. [Mobile capture](docs/screenshot-mobile.png) shows the same persisted demo run as the desktop image.
 
 ## What it does
 
@@ -153,20 +148,20 @@ The automated suite contains **19 passing engine/API tests**, including actual w
 
 The Playwright smoke uses the production frontend and a temporary database. It exercises the demo, dead-letter recovery, enqueue, pause/resume, pending/running cancellation, output inspection, desktop/mobile layout and live updates. Screenshots are generated from those real jobs. CI runs the engine/API suite, TypeScript/build and Chromium smoke on Node 24.
 
-The interface adds one-time view entry, selected-job inspector transitions, changing counters, live worker pulses, animated tabs and a native dialog entrance. SSE snapshots preserve the mounted view, so updates do not replay the introduction. Reduced-motion preferences disable animation and transitions; the smoke checks both the real running pulse and its disabled state. The optional capture command creates [a short motion walkthrough](docs/motion-demo.webm) from actual browser actions.
+The browser checks also cover keyboard search, filtering, clearing selection, delayed detail requests that must not expose stale job data, and mobile records without sideways table scrolling. SSE snapshots preserve the mounted view. Reduced-motion checks use a real running worker. The optional capture command creates [a short interaction walkthrough](docs/motion-demo.webm) from actual browser actions.
 
-One measured local benchmark on **Node v24.21.0 / Apple M4 / macOS arm64** processed **100 text jobs × 13,700 characters** at concurrency 3:
+A measured local run on **November 15, 2026**, using **Node v24.22.3 / Apple M4 / macOS arm64**, processed **100 text jobs × 13,700 characters** at concurrency 3:
 
 | Measurement                          | Observed result |
 | ------------------------------------ | --------------- |
-| Total time, including enqueue        | 1,450.56 ms     |
-| Enqueue time                         | 45.55 ms        |
-| Jobs / second                        | 68.94           |
-| Completed attempt p50 / p95 / max    | 38 / 58 / 86 ms |
+| Total time, including enqueue        | 728.12 ms     |
+| Enqueue time                         | 22.13 ms        |
+| Jobs / second                        | 137.34           |
+| Completed attempt p50 / p95 / max    | 18 / 29 / 40 ms |
 | Maximum observed workers             | 3               |
 | Completed jobs with persisted output | 100             |
 
-This is one reproducible local run, including worker startup and durable writes. It is not a production capacity guarantee. The benchmark checks outputs and the concurrency bound, prints the actual environment and deletes its temporary database.
+The [captured benchmark record](docs/benchmark-2026-11-15.json) includes the environment and workload. This is one reproducible local run, including worker startup and durable writes. It is not a production capacity guarantee. The benchmark checks outputs and the concurrency bound, prints the actual environment and deletes its temporary database.
 
 ## Decisions and limits
 

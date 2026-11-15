@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-11-15T06:26:12.471Z",
+  "environment": { "node": "v24.22.3", "platform": "darwin", "arch": "arm64", "cpu": "Apple M4" },
+  "workload": { "type": "text-analysis", "charactersPerJob": 13700 },
+  "jobs": 100,
+  "concurrency": 3,
+  "maxObservedConcurrency": 3,
+  "elapsedMs": 728.12,
+  "enqueueMs": 22.13,
+  "jobsPerSecond": 137.34,
+  "attemptDurationMs": { "p50": 18, "p95": 29, "max": 40 },
+  "completedJobsWithPersistedOutput": 100,
+  "note": "Single local run on a temporary SQLite database, including worker startup and durable writes. This is a reproducible demonstration, not a production capacity guarantee."
+}
