@@ -1,12 +1,39 @@
-![Relay — background job control](public/relay-wordmark.svg)
+<p align="center"><img src="public/relay-wordmark.svg" width="260" alt="Relay — background job control" /></p>
 
-A local background queue with isolated workers, durable attempts, retries, cancellation, and an execution ledger you can inspect.
+<p align="center">A local background queue with isolated workers, durable attempts, retries, cancellation, and an execution ledger you can inspect.</p>
+
+<p align="center">
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-149ECA?style=plastic&logo=react&logoColor=white" alt="React" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=plastic&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js%2024-339933?style=plastic&logo=nodedotjs&logoColor=white" alt="Node.js 24" /></a>
+</p>
+
+<p align="center">
+  <a href="https://sqlite.org/"><img src="https://img.shields.io/badge/SQLite-003B57?style=plastic&logo=sqlite&logoColor=white" alt="SQLite" /></a>
+  <a href="https://nodejs.org/api/worker_threads.html"><img src="https://img.shields.io/badge/Worker%20threads-339933?style=plastic&logo=nodedotjs&logoColor=white" alt="Worker threads" /></a>
+  <a href="https://playwright.dev/"><img src="https://img.shields.io/badge/Playwright-2EAD33?style=plastic&logoColor=white" alt="Playwright" /></a>
+</p>
 
 Relay makes background work inspectable. Enqueue real processing tasks, follow each worker attempt, recover exhausted jobs, and keep results across process restarts.
 
 Built with React, TypeScript, Node.js 24, native SQLite and worker threads. Runs locally without API keys, Redis, Docker or a hosted service.
 
-![Relay dashboard with real demo jobs and a retry timeline](docs/screenshot.png)
+<p align="center">
+  <a href="docs/screenshot.png"><img src="docs/screenshot.png" alt="Relay dashboard with real demo jobs and a retry timeline" width="960" /></a>
+</p>
+
+<details>
+<summary>View error recovery and the mobile console</summary>
+
+<p align="center">
+  <a href="docs/screenshot-inspector-error.png"><img src="docs/screenshot-inspector-error.png" alt="Relay inspector showing a failed request and explicit retry action" width="960" /></a>
+</p>
+
+<p align="center">
+  <a href="docs/screenshot-mobile.png"><img src="docs/screenshot-mobile.png" alt="Relay execution ledger and attempt timeline on mobile" width="390" /></a>
+</p>
+
+</details>
 
 ## Getting started
 
