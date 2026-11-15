@@ -15,7 +15,6 @@ import {
   RotateCcw,
   Search,
   ShieldAlert,
-  Workflow,
   X,
 } from 'lucide-react';
 import { request } from './api';
@@ -134,12 +133,10 @@ export default function App() {
     <div className="app-shell">
       <aside className="sidebar">
         <a className="brand" href="/" aria-label="Relay home">
-          <span className="brand-mark">
-            <Workflow size={27} strokeWidth={1.8} />
-          </span>
-          <span>Relay</span>
+          <img className="brand-mark" src="/relay-mark.svg" alt="" width="36" height="36" />
+          <span>relay<span className="brand-caption">JOB CONTROL</span></span>
         </a>
-        <span className="sidebar-label">OPERATIONS</span>
+        
         <nav aria-label="Main navigation">
           <button
             onClick={() => changeView('jobs')}
@@ -167,23 +164,23 @@ export default function App() {
             Activity
           </button>
         </nav>
-        <div className="sidebar-engine">
+        <div className="sidebar-engine" title="Single local scheduler with a durable SQLite WAL store">
           <Database size={18} />
           <div>
             <strong>SQLite</strong>
-            <span>WAL persistence</span>
+            <span>LOCAL / WAL</span>
           </div>
           <span className="green-dot" />
         </div>
         <div className="sidebar-footer">
-          <span>Local instance</span>
+          <span>LOCAL INSTANCE</span>
           <span className="mono">v1.0.0</span>
         </div>
       </aside>
       <div className="main-shell">
         <header className="topbar">
           <span className="breadcrumb">
-            Operations<span>/</span>
+            <Database size={13} /> relay.sqlite<span>/</span>
             <strong>{title}</strong>
           </span>
           <div className="connection">
@@ -196,14 +193,14 @@ export default function App() {
           <div className="view-content" key={view}>
             <div className="page-heading">
               <div>
-                <span className="eyebrow">EXECUTION CONTROL</span>
+                <span className="eyebrow">{view === 'dead' ? '02 / RECOVERY' : view === 'activity' ? '03 / EVENT LOG' : '01 / EXECUTION'}</span>
                 <h1>{title}</h1>
                 <p>
                   {view === 'dead'
                     ? 'Inspect failed work and recover exhausted attempts.'
                     : view === 'activity'
                       ? 'A live record of queue transitions and worker results.'
-                      : 'Monitor execution, inspect results and control your queue.'}
+                      : 'A durable ledger of local work. Select a job to inspect its execution.'}
                 </p>
               </div>
               <div className="heading-actions">
@@ -214,8 +211,7 @@ export default function App() {
                 <button className="button primary" onClick={() => setCreating(true)}>
                   <Plus size={17} />
                   Enqueue job
-                  <ArrowUpRight size={15} />
-                </button>
+                  </button>
               </div>
             </div>
             {error ? (
@@ -243,7 +239,7 @@ export default function App() {
                 value={running}
                 suffix={`/ ${capacity}`}
                 icon={<Cpu size={18} />}
-                detail={`${counts ? counts.queued + counts.retrying : 0} waiting for execution`}
+                detail={`${counts ? counts.queued + counts.retrying : 0} queued or awaiting retry`}
                 accent
               />
               <Metric
@@ -254,7 +250,7 @@ export default function App() {
                     : `${snapshot.metrics.successRate.toFixed(0)}%`
                 }
                 icon={<CircleCheck size={18} />}
-                detail="Completed / completed + dead"
+                detail="Completed / (completed + dead)"
                 title="Completed / (completed + dead letters)"
               />
               <Metric
@@ -274,7 +270,7 @@ export default function App() {
                   <span>
                     {snapshot?.settings.paused
                       ? 'New claims paused · running work continues'
-                      : 'One isolated worker per active attempt'}
+                      : 'Worker threads · one per active attempt'}
                   </span>
                 </div>
               </div>
@@ -462,7 +458,7 @@ export default function App() {
                 <Database size={13} />
                 State and results persist locally
               </span>
-              <span className="mono">ATOMIC CLAIMS / DURABLE HISTORY</span>
+              <span className="mono">NODE 24 · SQLITE WAL · AT-LEAST-ONCE DELIVERY</span>
             </footer>
           </div>
         </main>

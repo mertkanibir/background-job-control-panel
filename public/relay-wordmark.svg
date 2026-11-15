@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="100" viewBox="0 0 420 100" fill="none">
+  <rect width="420" height="100" fill="#172E35"/>
+  <g transform="translate(24 26)">
+    <path d="M10 13h12v10H10zM26 25h12v10H26z" stroke="#F4F2EB" stroke-width="2.5"/>
+    <path d="M16 23v8h10M32 25v-8H22" stroke="#F4F2EB" stroke-width="2.5"/>
+    <path d="M28 11h8v8m-8 0 8-8" stroke="#E6A449" stroke-width="2.5"/>
+  </g>
+  <text x="91" y="64" fill="#F4F2EB" font-family="Helvetica,Arial,sans-serif" font-size="48" font-weight="600" letter-spacing="-2">relay</text>
+  <path d="M235 30v40" stroke="#567077"/>
+  <text x="256" y="47" fill="#C1CBC8" font-family="monospace" font-size="12" letter-spacing="1.5">BACKGROUND</text>
+  <text x="256" y="65" fill="#C1CBC8" font-family="monospace" font-size="12" letter-spacing="1.5">JOB CONTROL</text>
+</svg>
